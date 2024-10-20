@@ -24,10 +24,38 @@ jobs:
         with:
           images: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop
 
-      - name: Build and push Docker image
+      - name: Build and push dummy desktop with ubuntu 24.04
         uses: docker/build-push-action@v3
         with:
           context: .
+          file: ubuntu24.04.Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:latest,${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:24.04
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push dummy desktop with ubuntu 22.04
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ubuntu22.04.Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:22.04
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push dummy desktop with ubuntu 20.04
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ubuntu20.04.Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:20.04
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push dummy desktop with ubuntu 18.04
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ubuntu18.04.Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:18.04
           labels: ${{ steps.meta.outputs.labels }}

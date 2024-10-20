@@ -1,5 +1,4 @@
-#Using latest version of Ubuntu
-FROM ubuntu:latest
+FROM ubuntu:18.04
 
 # Install Xvfb and XFCE desktop environment
 RUN \
@@ -16,7 +15,7 @@ RUN \
   sudo \
   dbus-x11 \
   libssh-4 \
-  libssl3 \
+  libssl1.1 \
   libx11-6 \
   libxml2 \
   libzip4 \
@@ -54,7 +53,7 @@ RUN \
 ADD ./config/xorg.conf /usr/share/X11/xorg.conf.d/xorg.conf
 ADD ./config/xorg.conf /etc/X11/xorg.conf
 #Add command to exec mysql-workbench into virtual desktop
-ADD ./scripts/entrypoint.sh /var/bin/entrypoint
+ADD ./scripts/x11/entrypoint.sh /var/bin/entrypoint
 #Make it executable
 RUN chmod +x /var/bin/entrypoint
 
