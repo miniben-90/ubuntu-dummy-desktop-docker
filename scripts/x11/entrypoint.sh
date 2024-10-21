@@ -7,7 +7,7 @@ ERROR=0
 cleanup() {
   echo -e "Cleanup session and close gpg agent..."
   # Logout session
-  xfce4-session-logout
+  # xfce4-session-logout
   # Terminate gpg agent
   gpg-connect-agent /bye
 }
