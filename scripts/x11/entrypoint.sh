@@ -6,16 +6,17 @@ ERROR=0
 
 cleanup() {
   echo -e "Cleanup session and close gpg agent..."
-  # Logout session
-  # xfce4-session-logout
   # Terminate gpg agent
   gpg-connect-agent /bye
+  # Logout session
+  xfce4-session-logout --halt --fast
+  # Kill Xvfb process to prevent any problem on restarting this image
+  kill -9 $(ps -ef | grep Xvfb | grep -v grep | awk '{print $2}' )
+  rm /tmp/.X0-lock
 }
 
 # Trap the EXIT signal (fires on script exit)
 trap cleanup EXIT
-
-trap 'echo -e "\033[0;31mAn error occurred\033[0m"; cleanup' ERR
 
 # force Xorg to use a specific config and run in background
 Xvfb :0 &
