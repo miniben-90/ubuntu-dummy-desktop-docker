@@ -1,4 +1,6 @@
-FROM ubuntu:20.04
+ARG ARM64=""
+
+FROM ${ARM64}ubuntu:20.04
 
 # Install Xvfb and XFCE desktop environment
 RUN \

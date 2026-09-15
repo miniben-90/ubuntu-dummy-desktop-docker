@@ -1,4 +1,6 @@
-FROM ubuntu:24.04
+ARG ARM64=""
+
+FROM ${ARM64}ubuntu:24.04
 
 # Install Xvfb and XFCE desktop environment
 RUN \
