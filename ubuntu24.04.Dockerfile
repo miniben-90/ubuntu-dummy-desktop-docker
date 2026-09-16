@@ -1,8 +1,8 @@
-ARG TARGETARCH
+ARG TARGETPLATFORM
 
 FROM ubuntu:24.04
 
-RUN echo "Building for ${TARGETARCH}"
+RUN echo "Building for ${TARGETPLATFORM}"
 # Install Xvfb and XFCE desktop environment
 RUN \
   echo "....install packages...." && \
