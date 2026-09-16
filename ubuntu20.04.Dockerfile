@@ -1,8 +1,4 @@
-ARG TARGETPLATFORM
-
 FROM ubuntu:20.04
-
-RUN echo "Building for ${TARGETPLATFORM}"
 
 # Install Xvfb and XFCE desktop environment
 RUN \
