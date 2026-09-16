@@ -1,61 +1,83 @@
 name: Build and Publish
 
 on:
+  push:
+    branches:
+      - main
   release:
     types: [published]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
+  build:
+    name: Build Ubuntu ${{ matrix.settings.version }} (${{ matrix.arch }})
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - file: ubuntu24.04
+            version: "24.04"
+            latest: true
+
+          - file: ubuntu22.04
+            version: "22.04"
+            latest: false
+
+          - file: ubuntu20.04
+            version: "20.04"
+            latest: false
+
+          - file: ubuntu18.04
+            version: "18.04"
+            latest: false
+
+        arch:
+          - name: amd64
+            platform: linux/amd64
+            suffix: ""
+
+          - name: arm64
+            platform: linux/arm64
+            suffix: "-arm64"
+
     steps:
       - name: Check out the project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Set up QEMU
+        if: ${{ matrix.arch.name == 'arm64' }}
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        if: ${{ matrix.arch.name == 'arm64' }}
+        uses: docker/setup-buildx-action@v4
+
+      - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop
 
-      - name: Build and push dummy desktop with ubuntu 24.04
-        uses: docker/build-push-action@v6
+      - name: Build and push Ubuntu ${{ matrix.settings.version }} ${{ matrix.arch.name }}
+        uses: docker/build-push-action@v7
         with:
           context: .
-          file: ubuntu24.04.Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:latest,${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:24.04
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build and push dummy desktop with ubuntu 22.04
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ubuntu22.04.Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:22.04
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build and push dummy desktop with ubuntu 20.04
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ubuntu20.04.Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:20.04
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build and push dummy desktop with ubuntu 18.04
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ubuntu18.04.Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_NAMESPACE }}/ubuntu-dummy-desktop:18.04
+          file: ${{ matrix.settings.file }}.Dockerfile
+          platforms: ${{ matrix.arch.platform }}
+          push: ${{ github.event_name == 'release' || startsWith(github.ref, 'refs/tags/') }}
+          tags: |
+            ${{ matrix.settings.latest && matrix.arch.name == 'amd64' && format('{0}/ubuntu-dummy-desktop:latest', secrets.DOCKER_NAMESPACE) || '' }}
+            ${{ format('{0}/ubuntu-dummy-desktop:{1}{2}', secrets.DOCKER_NAMESPACE, matrix.settings.version, matrix.arch.suffix) }}
           labels: ${{ steps.meta.outputs.labels }}

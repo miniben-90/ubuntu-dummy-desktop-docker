@@ -1,5 +1,4 @@
 FROM ubuntu:24.04
-
 # Install Xvfb and XFCE desktop environment
 RUN \
   echo "....install packages...." && \
