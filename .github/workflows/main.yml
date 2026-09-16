@@ -62,6 +62,14 @@ jobs:
           tags: ${{ matrix.settings.latest && format('{0}/ubuntu-dummy-desktop:latest,', secrets.DOCKER_NAMESPACE) || '' }}${{ format('{0}/ubuntu-dummy-desktop:{1}', secrets.DOCKER_NAMESPACE, matrix.settings.version) }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Set up QEMU
+        if: ${{ matrix.settings.arm64 }}
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        if: ${{ matrix.settings.arm64 }}
+        uses: docker/setup-buildx-action@v4
+
       - name: Build and push dummy desktop with ubuntu ${{ matrix.settings.version }} arm64
         if: ${{ matrix.settings.arm64 }}
         uses: docker/build-push-action@v7
