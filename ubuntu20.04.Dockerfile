@@ -1,6 +1,8 @@
-ARG ARM64=""
+ARG TARGETARCH
 
-FROM ${ARM64}ubuntu:20.04
+FROM ubuntu:20.04
+
+RUN echo "Building for ${TARGETARCH}"
 
 # Install Xvfb and XFCE desktop environment
 RUN \
